@@ -1,5 +1,6 @@
 package com.spring_starter.url_shortner.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -21,20 +22,20 @@ public class Url {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String shortenUrl;
+    private String shortenCode;
 
     @Column(nullable = false, length = 2048)
     private String longUrl;
 
     private String customAlias;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User user;
-
     @OneToOne(mappedBy = "url", cascade = CascadeType.ALL)
     private Analytics analytics;
 
+    @Column(nullable = false)
+    private String userId;
+
+    @JsonProperty("isActive")
     private boolean isActive = true;
 
     @CreationTimestamp
