@@ -1,15 +1,13 @@
 package com.spring_starter.url_shortner.controller;
 
-import com.spring_starter.url_shortner.dto.UrlRequestDto;
-import com.spring_starter.url_shortner.dto.UrlResponseDto;
+import com.spring_starter.url_shortner.dto.CreateUrlDto.CreateUrlRequestDto;
+import com.spring_starter.url_shortner.dto.CreateUrlDto.CreateUrlResponseDto;
 import com.spring_starter.url_shortner.service.UrlService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/api/v1/url")
@@ -22,9 +20,12 @@ public class UrlController {
     }
 
     @PostMapping()
-    public ResponseEntity<UrlResponseDto> createShortUrl(@RequestBody @Valid UrlRequestDto urlRequestDto){
-        UrlResponseDto urlResponseDto = urlService.createShortenUrl(urlRequestDto);
-        return new ResponseEntity<>(urlResponseDto, HttpStatus.CREATED);
+    public ResponseEntity<CreateUrlResponseDto> createShortUrl(
+            @RequestBody @Valid CreateUrlRequestDto createUrlRequestDto,
+            @RequestHeader(value = "x-user-id", required = true) @NotBlank(message = "x-user-id header is required") String userId
+    ){
+        CreateUrlResponseDto createUrlResponseDto = urlService.createShortenUrl(createUrlRequestDto, userId);
+        return new ResponseEntity<>(createUrlResponseDto, HttpStatus.CREATED);
     }
 
 }

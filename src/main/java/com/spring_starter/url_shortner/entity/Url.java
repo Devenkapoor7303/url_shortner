@@ -29,9 +29,6 @@ public class Url {
 
     private String customAlias;
 
-    @OneToOne(mappedBy = "url", cascade = CascadeType.ALL)
-    private Analytics analytics;
-
     @Column(nullable = false)
     private String userId;
 
