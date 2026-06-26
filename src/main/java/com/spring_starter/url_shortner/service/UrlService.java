@@ -1,13 +1,16 @@
 package com.spring_starter.url_shortner.service;
 
-import com.spring_starter.url_shortner.dto.CreateUrlDto.CreateUrlRequestDto;
-import com.spring_starter.url_shortner.dto.CreateUrlDto.CreateUrlResponseDto;
+import com.spring_starter.url_shortner.dto.createUrlDto.CreateUrlRequestDto;
+import com.spring_starter.url_shortner.dto.createUrlDto.CreateUrlResponseDto;
 import com.spring_starter.url_shortner.entity.Url;
+import com.spring_starter.url_shortner.exception.ResourceNotFoundException;
 import com.spring_starter.url_shortner.repository.UrlRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -41,6 +44,13 @@ public class UrlService {
         Url savedUrl = urlRepository.save(url);
 
         return mapToResponseDto(savedUrl);
+    }
+
+    public String getLongUrl(String shortenCode){
+        Url url = urlRepository.findByShortenCode(shortenCode)
+                .orElseThrow(()->new ResourceNotFoundException("Long url does not exist for particular code"));
+        System.out.println(url);
+        return url.getLongUrl();
     }
 
     private CreateUrlResponseDto mapToResponseDto(Url url) {

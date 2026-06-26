@@ -1,4 +1,4 @@
-package com.spring_starter.url_shortner.dto.CreateUrlDto;
+package com.spring_starter.url_shortner.dto.createUrlDto;
 
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;

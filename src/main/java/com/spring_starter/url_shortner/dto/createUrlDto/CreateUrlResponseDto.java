@@ -1,4 +1,4 @@
-package com.spring_starter.url_shortner.dto.CreateUrlDto;
+package com.spring_starter.url_shortner.dto.createUrlDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
