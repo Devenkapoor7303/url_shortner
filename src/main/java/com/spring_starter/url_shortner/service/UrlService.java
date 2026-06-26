@@ -49,7 +49,12 @@ public class UrlService {
     public String getLongUrl(String shortenCode){
         Url url = urlRepository.findByShortenCode(shortenCode)
                 .orElseThrow(()->new ResourceNotFoundException("Long url does not exist for particular code"));
-        System.out.println(url);
+
+        boolean isExpired = url.isExpired();
+        if( isExpired ){
+            throw new ResourceNotFoundException("Url is Expired");
+        }
+
         return url.getLongUrl();
     }
 
