@@ -2,6 +2,7 @@ package com.spring_starter.url_shortner.controller;
 
 import com.spring_starter.url_shortner.dto.createUrlDto.CreateUrlRequestDto;
 import com.spring_starter.url_shortner.dto.createUrlDto.CreateUrlResponseDto;
+import com.spring_starter.url_shortner.dto.getUrlDto.GetUrlResponseDto;
 import com.spring_starter.url_shortner.service.UrlService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -35,6 +37,12 @@ public class UrlController {
         return ResponseEntity.status(HttpStatus.FOUND)
                 .location(URI.create(longUrl))
                 .build();
+    }
+
+    @GetMapping()
+    public ResponseEntity<List<GetUrlResponseDto>> getShortUrls(){
+        List<GetUrlResponseDto> urlsResponseDto= urlService.getShortUrls();
+        return new ResponseEntity<>(urlsResponseDto,HttpStatus.OK);
     }
 
 }

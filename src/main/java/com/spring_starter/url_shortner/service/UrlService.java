@@ -2,6 +2,7 @@ package com.spring_starter.url_shortner.service;
 
 import com.spring_starter.url_shortner.dto.createUrlDto.CreateUrlRequestDto;
 import com.spring_starter.url_shortner.dto.createUrlDto.CreateUrlResponseDto;
+import com.spring_starter.url_shortner.dto.getUrlDto.GetUrlResponseDto;
 import com.spring_starter.url_shortner.entity.Url;
 import com.spring_starter.url_shortner.exception.ResourceNotFoundException;
 import com.spring_starter.url_shortner.repository.UrlRepository;
@@ -10,8 +11,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class UrlService {
@@ -56,6 +59,13 @@ public class UrlService {
         }
 
         return url.getLongUrl();
+    }
+
+    public List<GetUrlResponseDto> getShortUrls(){
+        return urlRepository.findAll()
+                .stream()
+                .map(urlEntity-> modelMapper.map(urlEntity,GetUrlResponseDto.class))
+                .collect(Collectors.toList());
     }
 
     private CreateUrlResponseDto mapToResponseDto(Url url) {
