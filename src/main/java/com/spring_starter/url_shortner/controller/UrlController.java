@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -55,4 +54,10 @@ public class UrlController {
         return new ResponseEntity<>(urlsResponseDto,HttpStatus.OK);
     }
 
+    @DeleteMapping("/{shortenCode}")
+    public ResponseEntity<Boolean> deleteShortUrl(
+            @PathVariable(required = true) String shortenCode
+    ){
+        return new ResponseEntity<>(urlService.deleteShortenCode(shortenCode),HttpStatus.NO_CONTENT);
+    }
 }
