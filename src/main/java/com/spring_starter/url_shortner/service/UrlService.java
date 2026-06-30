@@ -9,6 +9,8 @@ import com.spring_starter.url_shortner.repository.UrlRepository;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -61,11 +63,9 @@ public class UrlService {
         return url.getLongUrl();
     }
 
-    public List<GetUrlResponseDto> getShortUrls(){
-        return urlRepository.findAll()
-                .stream()
-                .map(urlEntity-> modelMapper.map(urlEntity,GetUrlResponseDto.class))
-                .collect(Collectors.toList());
+    public Page<GetUrlResponseDto> getShortUrls(Pageable pageable) {
+        return urlRepository.findAll(pageable)
+                .map(urlEntity -> modelMapper.map(urlEntity, GetUrlResponseDto.class));
     }
 
     private CreateUrlResponseDto mapToResponseDto(Url url) {

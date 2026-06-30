@@ -6,6 +6,10 @@ import com.spring_starter.url_shortner.dto.getUrlDto.GetUrlResponseDto;
 import com.spring_starter.url_shortner.service.UrlService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,8 +44,14 @@ public class UrlController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<GetUrlResponseDto>> getShortUrls(){
-        List<GetUrlResponseDto> urlsResponseDto= urlService.getShortUrls();
+    public ResponseEntity<Page<GetUrlResponseDto>> getShortUrls(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") Sort.Direction direction
+    ){
+        Pageable pageable = PageRequest.of(page,size,Sort.by(direction,sortBy));
+        Page<GetUrlResponseDto> urlsResponseDto= urlService.getShortUrls(pageable);
         return new ResponseEntity<>(urlsResponseDto,HttpStatus.OK);
     }
 
