@@ -3,6 +3,8 @@ package com.spring_starter.url_shortner.service;
 import com.spring_starter.url_shortner.dto.createUrlDto.CreateUrlRequestDto;
 import com.spring_starter.url_shortner.dto.createUrlDto.CreateUrlResponseDto;
 import com.spring_starter.url_shortner.dto.getUrlDto.GetUrlResponseDto;
+import com.spring_starter.url_shortner.dto.updateUrlDto.UpdateUrlRequestDto;
+import com.spring_starter.url_shortner.dto.updateUrlDto.UpdateUrlResponseDto;
 import com.spring_starter.url_shortner.entity.Url;
 import com.spring_starter.url_shortner.exception.ResourceNotFoundException;
 import com.spring_starter.url_shortner.repository.UrlRepository;
@@ -72,6 +74,13 @@ public class UrlService {
         return true;
     }
 
+    public UpdateUrlResponseDto updateShortenedUrl(String shortenCode, UpdateUrlRequestDto updateUrlRequestDto){
+        Url url = isExistByShortenCode(shortenCode);
+        modelMapper.map(updateUrlRequestDto, url);
+        Url updatedUrl = urlRepository.save(url);
+        return modelMapper.map(updatedUrl, UpdateUrlResponseDto.class);
+    }
+
     private CreateUrlResponseDto mapToResponseDto(Url url) {
         CreateUrlResponseDto dto = modelMapper.map(url, CreateUrlResponseDto.class);
         dto.setActive(url.isActive());
@@ -79,8 +88,8 @@ public class UrlService {
         return dto;
     }
 
-    private void isExistByShortenCode(String shortenCode){
-        urlRepository.findByShortenCode(shortenCode).orElseThrow(()->new ResourceNotFoundException("Url is not found with given code"));
+    private Url isExistByShortenCode(String shortenCode){
+        return urlRepository.findByShortenCode(shortenCode).orElseThrow(()->new ResourceNotFoundException("Url is not found with given code"));
     }
 
 }

@@ -3,6 +3,8 @@ package com.spring_starter.url_shortner.controller;
 import com.spring_starter.url_shortner.dto.createUrlDto.CreateUrlRequestDto;
 import com.spring_starter.url_shortner.dto.createUrlDto.CreateUrlResponseDto;
 import com.spring_starter.url_shortner.dto.getUrlDto.GetUrlResponseDto;
+import com.spring_starter.url_shortner.dto.updateUrlDto.UpdateUrlRequestDto;
+import com.spring_starter.url_shortner.dto.updateUrlDto.UpdateUrlResponseDto;
 import com.spring_starter.url_shortner.service.UrlService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -59,5 +61,13 @@ public class UrlController {
             @PathVariable(required = true) String shortenCode
     ){
         return new ResponseEntity<>(urlService.deleteShortenCode(shortenCode),HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping("/{shortenCode}")
+    public ResponseEntity<UpdateUrlResponseDto> updateShortenedUrlByCode(
+            @PathVariable(required = true) String shortenCode,
+            @RequestBody @Valid UpdateUrlRequestDto urlRequestDto
+    ){
+        return new ResponseEntity<>(urlService.updateShortenedUrl(shortenCode,urlRequestDto),HttpStatus.OK);
     }
 }
