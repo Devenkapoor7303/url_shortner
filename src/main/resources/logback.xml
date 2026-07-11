@@ -41,7 +41,7 @@
     <!-- 4. ROOT LOGGER BINDINGS -->
     <root level="INFO">
         <!-- Sends TRACE and above to your log file via async thread -->
-        <appender-ref ref="ASYNC_FILE" />
+<!--        <appender-ref ref="ASYNC_FILE" />-->
         <!-- Sends TRACE and above to your console screen immediately -->
         <appender-ref ref="CONSOLE_ALL" />
     </root>
