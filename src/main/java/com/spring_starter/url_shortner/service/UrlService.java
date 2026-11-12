@@ -7,10 +7,10 @@ import com.spring_starter.url_shortner.dto.updateUrlDto.UpdateUrlRequestDto;
 import com.spring_starter.url_shortner.dto.updateUrlDto.UpdateUrlResponseDto;
 import com.spring_starter.url_shortner.entity.Url;
 import com.spring_starter.url_shortner.exception.ResourceNotFoundException;
+import com.spring_starter.url_shortner.mapper.UrlMapper;
 import com.spring_starter.url_shortner.repository.UrlRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,20 +26,18 @@ public class UrlService {
     private String baseUrl;
 
     private final UrlRepository urlRepository;
-    private final ModelMapper modelMapper;
+    private final UrlMapper urlMapper;
 
-    public UrlService(UrlRepository urlRepository, ModelMapper modelMapper){
+    public UrlService(UrlRepository urlRepository, UrlMapper urlMapper) {
         this.urlRepository = urlRepository;
-        this.modelMapper = modelMapper;
+        this.urlMapper = urlMapper;
     }
 
-    public CreateUrlResponseDto createShortenUrl(CreateUrlRequestDto createUrlRequestDto, String userId){
-
+    public CreateUrlResponseDto createShortenUrl(CreateUrlRequestDto createUrlRequestDto, String userId) {
         log.info("Creating a shorten url for {} this url and for this {} user id", createUrlRequestDto.getLongUrl(), userId);
         String shortCode = (createUrlRequestDto.getCustomAlias() != null && !createUrlRequestDto.getCustomAlias().isBlank())
                 ? createUrlRequestDto.getCustomAlias()
                 : UUID.randomUUID().toString().substring(0, 8);
-
 
         log.info("Short code generated for this {} user", userId);
         Url url = Url.builder()
@@ -54,18 +52,17 @@ public class UrlService {
         log.info("url saved to db");
         Url savedUrl = urlRepository.save(url);
 
-        return mapToResponseDto(savedUrl);
+        return urlMapper.toCreateResponseDto(savedUrl, baseUrl);
     }
 
-    public String getLongUrl(String shortenCode){
-
-        log.info("Fetching long url for {} short code",shortenCode);
+    public String getLongUrl(String shortenCode) {
+        log.info("Fetching long url for {} short code", shortenCode);
         Url url = urlRepository.findByShortenCode(shortenCode)
-                .orElseThrow(()->new ResourceNotFoundException("Long url does not exist for particular code"));
+                .orElseThrow(() -> new ResourceNotFoundException("Long url does not exist for particular code"));
 
         boolean isExpired = url.isExpired();
-        if( isExpired ){
-            log.error("url with short code {} is already expired",url.getShortenCode());
+        if (isExpired) {
+            log.error("url with short code {} is already expired", url.getShortenCode());
             throw new ResourceNotFoundException("Url is Expired");
         }
 
@@ -75,35 +72,31 @@ public class UrlService {
     public Page<GetUrlResponseDto> getShortUrls(Pageable pageable) {
         log.info("Fetching all the urls with given page size and page number");
         return urlRepository.findAll(pageable)
-                .map(urlEntity -> modelMapper.map(urlEntity, GetUrlResponseDto.class));
+                .map(urlMapper::toGetResponseDto);
     }
 
     @Transactional
-    public Boolean deleteShortenCode(String shortenCode){
+    public Boolean deleteShortenCode(String shortenCode) {
         log.info("Deleting the shorten code {}", shortenCode);
         isExistByShortenCode(shortenCode);
         urlRepository.deleteByShortenCode(shortenCode);
         return true;
     }
 
-    public UpdateUrlResponseDto updateShortenedUrl(String shortenCode, UpdateUrlRequestDto updateUrlRequestDto){
+    public UpdateUrlResponseDto updateShortenedUrl(String shortenCode, UpdateUrlRequestDto updateUrlRequestDto) {
         log.info("Updating PUT request for url with shorten code {} and long url {}", shortenCode, updateUrlRequestDto.getLongUrl());
         Url url = isExistByShortenCode(shortenCode);
-        modelMapper.map(updateUrlRequestDto, url);
+
+        // Updates the existing url entity in-place
+        urlMapper.updateEntityFromDto(updateUrlRequestDto, url);
+
         Url updatedUrl = urlRepository.save(url);
-        return modelMapper.map(updatedUrl, UpdateUrlResponseDto.class);
+        return urlMapper.toUpdateResponseDto(updatedUrl);
     }
 
-    private CreateUrlResponseDto mapToResponseDto(Url url) {
-        CreateUrlResponseDto dto = modelMapper.map(url, CreateUrlResponseDto.class);
-        dto.setActive(url.isActive());
-        dto.setShortenUrl(baseUrl + "/s/" + url.getShortenCode());
-        return dto;
+    private Url isExistByShortenCode(String shortenCode) {
+        log.debug("Checking whether user exist with this {} short code", shortenCode);
+        return urlRepository.findByShortenCode(shortenCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Url is not found with given code"));
     }
-
-    private Url isExistByShortenCode(String shortenCode){
-        log.debug("Checking whether user exist with this {} short code",shortenCode);
-        return urlRepository.findByShortenCode(shortenCode).orElseThrow(()->new ResourceNotFoundException("Url is not found with given code"));
-    }
-
 }
